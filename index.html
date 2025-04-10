@@ -1,32 +1,214 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<title>Slide Navbar</title>
-	<link rel="stylesheet" type="text/css" href="slide navbar style.css">
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Demo App Login / Signup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    .form-box {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px 30px;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+      text-align: center;
+      transition: 0.4s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-box h2 {
+      color: #00ffff;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 15px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 10px #00ffff50;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #00feba, #5b86e5);
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 10px #00feba70;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #5b86e5, #00feba);
+      box-shadow: 0 0 20px #00feba90;
+    }
+
+    .switch-text {
+      margin-top: 20px;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .switch-text span {
+      color: #00ffff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .switch-text span:hover {
+      text-decoration: underline;
+    }
+
+    #forget-password {
+      color: #999;
+      font-size: 13px;
+      margin-top: 15px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    #status-msg {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #0ff;
+    }
+  </style>
 </head>
 <body>
-	<div class="main">  	
-		<input type="checkbox" id="chk" aria-hidden="true">
+  <div class="container">
+    <div class="form-box">
+      <h2 id="form-title">Sign Up Your Demo Web </h2>
+	    <p> By Developer <strong> Swygen Official </strong></p>
 
-			<div class="signup">
-				<form>
-					<label for="chk" aria-hidden="true">Sign up</label>
-					<input type="text" name="txt" placeholder="User name" required="">
-					<input type="email" name="email" placeholder="Email" required="">
-					<input type="password" name="pswd" placeholder="Password" required="">
-					<button>Sign up</button>
-				</form>
-			</div>
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
 
-			<div class="login">
-				<form>
-					<label for="chk" aria-hidden="true">Login</label>
-					<input type="email" name="email" placeholder="Email" required="">
-					<input type="password" name="pswd" placeholder="Password" required="">
-					<button>Login</button>
-				</form>
-			</div>
-	</div>
+      <div id="confirm-password-box">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+      </div>
+
+      <button onclick="submitForm()">Continue</button>
+
+      <p class="switch-text">
+        Already have an account? <span onclick="toggleForm()">Login Now Your Demo Web</span>
+      </p>
+
+      <p id="forget-password" onclick="resetPassword()">Forgot Password?</p>
+
+      <p id="status-msg"></p>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAonc-hS1V2MzSSeIWdRKT0gwJi_G58Znc",
+  authDomain: "fir-dashboard-e53de.firebaseapp.com",
+  projectId: "fir-dashboard-e53de",
+  storageBucket: "fir-dashboard-e53de.firebasestorage.app",
+  messagingSenderId: "716659883720",
+  appId: "1:716659883720:web:9ceaf854066becfcadaffd"
+};
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    let isLogin = false;
+
+    function toggleForm() {
+      isLogin = !isLogin;
+      document.getElementById("form-title").innerText = isLogin ? "Login" : "Sign Up";
+      document.getElementById("confirm-password-box").style.display = isLogin ? "none" : "block";
+      document.querySelector(".switch-text").innerHTML = isLogin
+        ? `Don't have an account? <span onclick="toggleForm()">Sign Up</span>`
+        : `Already have an account? <span onclick="toggleForm()">Login Now</span>`;
+      document.getElementById("status-msg").innerText = "";
+    }
+
+    function submitForm() {
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+      const confirmPass = document.getElementById("confirmPassword").value;
+      const msg = document.getElementById("status-msg");
+
+      if (!email || !pass || (!isLogin && pass !== confirmPass)) {
+        msg.innerText = "Please fill all fields correctly.";
+        return;
+      }
+
+      if (isLogin) {
+        auth.signInWithEmailAndPassword(email, pass)
+          .then(() => {
+            msg.innerText = "Login successful! Redirecting...";
+            setTimeout(() => window.location.href = "dashboard.html", 1500);
+          })
+          .catch(err => msg.innerText = err.message);
+      } else {
+        auth.createUserWithEmailAndPassword(email, pass)
+          .then(userCredential => {
+            userCredential.user.sendEmailVerification();
+            msg.innerText = "Signup successful! Check your email to verify.";
+          })
+          .catch(err => msg.innerText = err.message);
+      }
+    }
+
+    function resetPassword() {
+      const email = document.getElementById("email").value;
+      const msg = document.getElementById("status-msg");
+
+      if (!email) {
+        msg.innerText = "Please enter your email to reset password.";
+        return;
+      }
+
+      auth.sendPasswordResetEmail(email)
+        .then(() => msg.innerText = "Reset link sent! Check your email.")
+        .catch(err => msg.innerText = err.message);
+    }
+  </script>
 </body>
 </html>
