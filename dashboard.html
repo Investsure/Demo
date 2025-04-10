@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Welcome to Your Dashboard</h1>
+            <div class="user-info">
+                <p id="userName">Loading...</p>
+                <p id="userEmail">Loading...</p>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <!-- Profile Section -->
+        <section class="profile-section">
+            <h2>Your Profile</h2>
+            <div class="profile-info">
+                <p><strong>Name:</strong> <span id="profileName">Loading...</span></p>
+                <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
+                <p><strong>UID:</strong> <span id="profileUID">Loading...</span></p>
+                <button onclick="updateProfile()">Update Profile</button>
+            </div>
+        </section>
+
+        <!-- Giveaway Section -->
+        <section class="giveaway-section">
+            <h2>Giveaway Offer</h2>
+            <button onclick="applyGiveaway()">Apply for Giveaway</button>
+        </section>
+
+        <!-- Deposit Bonus Section -->
+        <section class="deposit-section">
+            <h2>Deposit Bonus Offer</h2>
+            <button onclick="applyDepositBonus()">Apply for Deposit Bonus</button>
+        </section>
+
+        <!-- Transaction History Section -->
+        <section class="transaction-history">
+            <h2>Transaction History</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionHistory"></tbody>
+            </table>
+        </section>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
+
+<style>
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(45deg, #ff6a00, #ee0979); /* Premium Gradient Background */
+    color: white;
+}
+
+.dashboard-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.user-info {
+    margin-top: 20px;
+    font-size: 1.2em;
+}
+
+button {
+    padding: 12px 25px;
+    margin: 10px;
+    background: #ff0077; /* Premium color */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+}
+
+button:hover {
+    background: #ff5e7e;
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+section {
+    margin: 20px 0;
+}
+
+.profile-section {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.profile-info p {
+    font-size: 1.1em;
+    margin: 8px 0;
+}
+
+.profile-info span {
+    color: #ff0077;
+}
+
+.profile-info button {
+    margin-top: 20px;
+}
+
+.transaction-history table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.transaction-history th, .transaction-history td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.transaction-history th {
+    background-color: #ff0077;
+}
+
+.transaction-history tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        width: 95%;
+    }
+
+    header h1 {
+        font-size: 2em;
+    }
+
+    button {
+        font-size: 1em;
+    }
+
+    .profile-info p {
+        font-size: 1em;
+    }
+}
+</style>
+
+<script>
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAonc-hS1V2MzSSeIWdRKT0gwJi_G58Znc",
+  authDomain: "fir-dashboard-e53de.firebaseapp.com",
+  projectId: "fir-dashboard-e53de",
+  storageBucket: "fir-dashboard-e53de.firebasestorage.app",
+  messagingSenderId: "716659883720",
+  appId: "1:716659883720:web:9ceaf854066becfcadaffd"
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let user = null;
+
+// On Auth State Changed
+auth.onAuthStateChanged(async (currentUser) => {
+    user = currentUser;
+    if (user) {
+        // Display User Information
+        document.getElementById("userName").textContent = user.displayName || "User";
+        document.getElementById("userEmail").textContent = user.email;
+
+        // Load Profile Information
+        await loadProfileInfo();
+
+        // Load Transaction History
+        await loadTransactionHistory();
+    }
+});
+
+// Logout Function
+function logout() {
+    auth.signOut().then(() => {
+        window.location.href = "index.html";
+    }).catch((error) => {
+        alert(error.message);
+    });
+}
+
+// Update Profile
+function updateProfile() {
+    window.location.href = "profile-update.html";
+}
+
+// Apply for Giveaway
+function applyGiveaway() {
+    window.location.href = "giveaway-apply.html";
+}
+
+// Apply for Deposit Bonus
+function applyDepositBonus() {
+    window.location.href = "deposit-bonus-apply.html";
+}
+
+// Load User Profile Information
+async function loadProfileInfo() {
+    const userRef = db.collection("users").doc(user.uid);
+    const doc = await userRef.get();
+    if (doc.exists) {
+        document.getElementById("profileName").textContent = doc.data().name;
+        document.getElementById("profileEmail").textContent = doc.data().email;
+        document.getElementById("profileUID").textContent = user.uid;
+    }
+}
+
+// Load Transaction History from Firestore
+async function loadTransactionHistory() {
+    const transactionsRef = db.collection("transactions").where("uid", "==", user.uid);
+    const snapshot = await transactionsRef.get();
+
+    const transactionHistoryTable = document.getElementById("transactionHistory");
+    transactionHistoryTable.innerHTML = "";
+
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const row = `<tr>
+                        <td>${data.date}</td>
+                        <td>${data.type}</td>
+                        <td>${data.status}</td>
+                    </tr>`;
+        transactionHistoryTable.innerHTML += row;
+    });
+}
+</script>
