@@ -1,272 +1,233 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Join & Free Giveaway</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1f1c2c, #928DAB);
+      color: white;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 450px;
+      margin: auto;
+      background: rgba(255,255,255,0.1);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+      font-size: 16px;
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 24px;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .option-btn {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      padding: 12px;
+      border: none;
+      color: white;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .option-btn:hover {
+      background: linear-gradient(135deg, #0072ff, #00c6ff);
+    }
+    .hidden {
+      display: none;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 16px;
+    }
+    input::placeholder, textarea::placeholder {
+      color: #ccc;
+    }
+    button.submit, .upload-btn {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      padding: 15px;
+      border: none;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      width: 100%;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    button.submit:hover, .upload-btn:hover {
+      background: linear-gradient(135deg, #0072ff, #00c6ff);
+    }
+    #msg {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+      color: #FFDD57;
+    }
+    .note {
+      font-size: 16px;
+      color: #ddd;
+      margin-bottom: 15px;
+    }
+    .upload-btn {
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <header>
-            <h1>Welcome to Your Dashboard</h1>
-            <div class="user-info">
-                <p id="userName">Loading...</p>
-                <p id="userEmail">Loading...</p>
-                <button onclick="logout()">Logout</button>
-            </div>
-        </header>
-
-        <!-- Profile Section -->
-        <section class="profile-section">
-            <h2>Your Profile</h2>
-            <div class="profile-info">
-                <p><strong>Name:</strong> <span id="profileName">Loading...</span></p>
-                <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
-                <p><strong>UID:</strong> <span id="profileUID">Loading...</span></p>
-                <button onclick="updateProfile()">Update Profile</button>
-            </div>
-        </section>
-
-        <!-- Giveaway Section -->
-        <section class="giveaway-section">
-            <h2>Giveaway Offer</h2>
-            <button onclick="applyGiveaway()">Apply for Giveaway</button>
-        </section>
-
-        <!-- Deposit Bonus Section -->
-        <section class="deposit-section">
-            <h2>Deposit Bonus Offer</h2>
-            <button onclick="applyDepositBonus()">Apply for Deposit Bonus</button>
-        </section>
-
-        <!-- Transaction History Section -->
-        <section class="transaction-history">
-            <h2>Transaction History</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="transactionHistory"></tbody>
-            </table>
-        </section>
+  <div class="container">
+    <h2>🎁 Join & Free Giveaway</h2>
+    <h3>"সর্বপ্রথম একাউন্ট তৈরি করুন তারপর আপনার বোনাস দাবি করুন"</h3>
+    <div class="options">
+      <button class="option-btn" onclick="showCreateAccount()">1. Create an Account</button>
+      <button class="option-btn" onclick="showClaimBonus()">2. Claim Your Bonus</button>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="dashboard.js"></script>
+    <div id="createAccount" class="hidden">
+      <p class="note">নিচের Go অপশন এ ক্লিক করে HGZY Game এ নতুন একাউন্ট তৈরি করুন এবং আপনার UID এবং প্রোফাইল এর একটা Screenshot নিন তারপর Claim your bonus অপশন এ সঠিক ভাবে জমা দিন।</p>
+      <a href="https://hgzy.org/#/register?invitationCode=54248806369" target="_blank">
+        <button class="submit">Go</button>
+      </a>
+    </div>
+
+    <div id="claimForm" class="hidden">
+      <form id="bonusForm">
+        <input type="text" id="name" placeholder="আপনার নাম" required>
+        <input type="email" id="email" placeholder="আপনার ইমেইল" required>
+        <input type="text" id="telegram" placeholder="Telegram নাম্বার" required>
+        <input type="text" id="uid" placeholder="HGZY UID" required>
+
+        <input type="file" id="screenshotInput" accept="image/*" required>
+        <button type="button" class="upload-btn" onclick="uploadImage()">Upload Screenshot</button>
+        <input type="text" id="screenshot" placeholder="Uploaded Screenshot Link" readonly required>
+
+        <button class="submit" type="submit">বোনাস আবেদন করুন</button>
+      </form>
+      <p id="msg"></p>
+    </div>
+  </div>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAonc-hS1V2MzSSeIWdRKT0gwJi_G58Znc",
+      authDomain: "fir-dashboard-e53de.firebaseapp.com",
+      projectId: "fir-dashboard-e53de",
+      storageBucket: "fir-dashboard-e53de.appspot.com",
+      messagingSenderId: "716659883720",
+      appId: "1:716659883720:web:9ceaf854066becfcadaffd"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const apiKey = "f2b8b8a5ae7d16cfdf9049d56507049d";
+    const apiEndpoint = "https://api.imgbb.com/1/upload";
+
+    async function uploadImage() {
+      const fileInput = document.getElementById('screenshotInput');
+      const file = fileInput.files[0];
+      if (!file) return alert("Please select an image!");
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const response = await fetch(`${apiEndpoint}?key=${apiKey}`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          const imageUrl = result.data.url;
+          document.getElementById('screenshot').value = imageUrl;
+          document.getElementById('msg').innerHTML = `<a href="${imageUrl}" target="_blank" style="color:lightgreen;">✅ Image uploaded successfully</a>`;
+        } else {
+          throw new Error("Upload failed");
+        }
+      } catch (error) {
+        alert("Upload failed. Please try again.");
+      }
+    }
+
+    document.getElementById('bonusForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const telegram = document.getElementById('telegram').value.trim();
+      const uid = document.getElementById('uid').value.trim();
+      const screenshot = document.getElementById('screenshot').value.trim();
+      const abedonID = 'ABN' + Date.now().toString().slice(-6);
+
+      const msg = document.getElementById('msg');
+
+      try {
+        const snapshot = await db.collection("bonus_claims")
+          .where("name", "==", name)
+          .get();
+
+        const snapshot2 = await db.collection("bonus_claims")
+          .where("email", "==", email)
+          .get();
+
+        const snapshot3 = await db.collection("bonus_claims")
+          .where("uid", "==", uid)
+          .get();
+
+        if (!snapshot.empty || !snapshot2.empty || !snapshot3.empty) {
+          msg.innerHTML = "❌ আপনি ইতিমধ্যে আবেদন করেছেন! নাম, ইমেইল বা UID একাধিকবার ব্যবহার করা যাবে না।";
+          return;
+        }
+
+        await db.collection("bonus_claims").add({
+          abedonID,
+          name,
+          email,
+          telegram,
+          uid,
+          screenshot,
+          time: new Date().toISOString()
+        });
+
+        msg.innerHTML = `✅ <b>আপনার বোনাস দাবির অনুরোধ সফলভাবে গ্রহণ করা হয়েছে!</b><br>⏳ অনুগ্রহ করে অপেক্ষা করুন...<br><br>❤️ ধন্যবাদ!<br>আবেদন নাম্বার: <b>${abedonID}</b>`;
+        document.getElementById('bonusForm').reset();
+      } catch (err) {
+        msg.innerText = "❌ অনুগ্রহ করে পরে আবার চেষ্টা করুন।";
+      }
+    });
+
+    function showCreateAccount() {
+      document.getElementById('createAccount').classList.remove('hidden');
+      document.getElementById('claimForm').classList.add('hidden');
+    }
+
+    function showClaimBonus() {
+      document.getElementById('claimForm').classList.remove('hidden');
+      document.getElementById('createAccount').classList.add('hidden');
+    }
+  </script>
 </body>
 </html>
-
-<style>
-/* Global Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(45deg, #ff6a00, #ee0979); /* Premium Gradient Background */
-    color: white;
-}
-
-.dashboard-container {
-    width: 80%;
-    margin: 0 auto;
-    padding: 30px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-}
-
-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-header h1 {
-    font-size: 2.5em;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-}
-
-.user-info {
-    margin-top: 20px;
-    font-size: 1.2em;
-}
-
-button {
-    padding: 12px 25px;
-    margin: 10px;
-    background: #ff0077; /* Premium color */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1.1em;
-}
-
-button:hover {
-    background: #ff5e7e;
-    transform: translateY(-2px);
-    transition: all 0.3s ease;
-}
-
-section {
-    margin: 20px 0;
-}
-
-.profile-section {
-    background: rgba(0, 0, 0, 0.5);
-    padding: 20px;
-    border-radius: 10px;
-}
-
-.profile-info p {
-    font-size: 1.1em;
-    margin: 8px 0;
-}
-
-.profile-info span {
-    color: #ff0077;
-}
-
-.profile-info button {
-    margin-top: 20px;
-}
-
-.transaction-history table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
-}
-
-.transaction-history th, .transaction-history td {
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-}
-
-.transaction-history th {
-    background-color: #ff0077;
-}
-
-.transaction-history tr:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-@media (max-width: 768px) {
-    .dashboard-container {
-        width: 95%;
-    }
-
-    header h1 {
-        font-size: 2em;
-    }
-
-    button {
-        font-size: 1em;
-    }
-
-    .profile-info p {
-        font-size: 1em;
-    }
-}
-</style>
-
-<script>
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAonc-hS1V2MzSSeIWdRKT0gwJi_G58Znc",
-  authDomain: "fir-dashboard-e53de.firebaseapp.com",
-  projectId: "fir-dashboard-e53de",
-  storageBucket: "fir-dashboard-e53de.firebasestorage.app",
-  messagingSenderId: "716659883720",
-  appId: "1:716659883720:web:9ceaf854066becfcadaffd"
-};
-
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-let user = null;
-
-// On Auth State Changed
-auth.onAuthStateChanged(async (currentUser) => {
-    user = currentUser;
-    if (user) {
-        // Display User Information
-        document.getElementById("userName").textContent = user.displayName || "User";
-        document.getElementById("userEmail").textContent = user.email;
-
-        // Load Profile Information
-        await loadProfileInfo();
-
-        // Load Transaction History
-        await loadTransactionHistory();
-    }
-});
-
-// Logout Function
-function logout() {
-    auth.signOut().then(() => {
-        window.location.href = "index.html";
-    }).catch((error) => {
-        alert(error.message);
-    });
-}
-
-// Update Profile
-function updateProfile() {
-    window.location.href = "profile-update.html";
-}
-
-// Apply for Giveaway
-function applyGiveaway() {
-    window.location.href = "giveaway-apply.html";
-}
-
-// Apply for Deposit Bonus
-function applyDepositBonus() {
-    window.location.href = "deposit-bonus-apply.html";
-}
-
-// Load User Profile Information
-async function loadProfileInfo() {
-    const userRef = db.collection("users").doc(user.uid);
-    const doc = await userRef.get();
-    if (doc.exists) {
-        document.getElementById("profileName").textContent = doc.data().name;
-        document.getElementById("profileEmail").textContent = doc.data().email;
-        document.getElementById("profileUID").textContent = user.uid;
-    }
-}
-
-// Load Transaction History from Firestore
-async function loadTransactionHistory() {
-    const transactionsRef = db.collection("transactions").where("uid", "==", user.uid);
-    const snapshot = await transactionsRef.get();
-
-    const transactionHistoryTable = document.getElementById("transactionHistory");
-    transactionHistoryTable.innerHTML = "";
-
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        const row = `<tr>
-                        <td>${data.date}</td>
-                        <td>${data.type}</td>
-                        <td>${data.status}</td>
-                    </tr>`;
-        transactionHistoryTable.innerHTML += row;
-    });
-}
-</script>
